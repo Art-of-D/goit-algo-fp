@@ -2,6 +2,7 @@ import uuid
 import heapq
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 
 class Node:
@@ -86,6 +87,62 @@ def draw_tree(tree_root):
   nx.draw(tree, pos=pos, labels=labels, arrows=False, node_size=2500, node_color=colors)
   plt.show()
 
+def generate_color(step, total_steps=255):
+    ratio = step / total_steps
+    base = int(50 + ratio * 200)
+    red = (base + random.randint(-15, 15)) % 255
+    green = (base + random.randint(-15, 15)) % 255
+    blue = (base + random.randint(-15, 15)) % 255
+    
+    return f'#{red:02X}{green:02X}{blue:02X}'
+
+def reset_colors(tree_root, color="skyblue"):
+    if tree_root is None:
+        return
+
+    tree_root.color = color
+    if tree_root.left:
+        reset_colors(tree_root.left)
+    if tree_root.right:
+        reset_colors(tree_root.right)
+
+def dfs_traversal(tree_root, total_steps):
+    if tree_root is None:
+        return
+
+    visited_nodes = []
+    stack = [tree_root]
+
+    while stack:
+        node = stack.pop()
+
+        if node not in visited_nodes:
+            node.color = generate_color(len(visited_nodes), total_steps)
+            visited_nodes.append(node)
+
+            draw_tree(tree_root)
+
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+
+
+def bfs_traversal(tree_root, total_steps):
+    queue = [tree_root]
+    visited_nodes = []
+    
+    while queue:
+        node = queue.pop(0)
+        node.color = generate_color(len(visited_nodes), total_steps)
+        visited_nodes.append(node)
+        draw_tree(tree_root)
+
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+
 
 # Make tree
 root = Node(0)
@@ -96,9 +153,19 @@ root.right = Node(1)
 root.right.left = Node(3)
 #make heap
 heap = BinaryHeap()
-for node in [root, root.left, root.right, root.left.left, root.left.right]:
+nodes = [root, root.left, root.right, root.left.left, root.left.right]
+for node in nodes:
    heap.insert(node)
 
 tree_root = heap.get_tree()
 # Visualization of heap
 draw_tree(tree_root)
+
+# DFS traversal
+dfs_traversal(tree_root, len(nodes))
+
+# Reset colors
+reset_colors(tree_root)
+
+# BFS traversal
+bfs_traversal(tree_root, len(nodes))
