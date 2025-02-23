@@ -42,7 +42,7 @@ def knapsack(items, budget):
     n = len(items)
     dp = [0] * (budget + 1)
     chosen_items = [{} for _ in range(budget + 1)]
-
+    
     for b in range(budget + 1):
         for i in range(n):
             if costs[i] <= b:
